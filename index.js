@@ -161,12 +161,12 @@ const initUI = async () => {
 
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0));
 
-const getRandomProxy = () => {
+const getOrderedProxy = (walletIndex) => {
   if (proxies.length === 0) return { agent: null, address: null };
-  const proxy = proxies[Math.floor(Math.random() * proxies.length)];
-  const proxyUrl = proxy.includes('@') ? 
-    `http://${proxy}` : 
-    `http://${proxy.split(':')[0]}:${proxy.split(':')[1]}`;
+  const proxy = proxies[walletIndex % proxies.length]; // Use walletIndex to select proxy in order
+  const proxyUrl = proxy.includes('@') 
+    ? `http://${proxy}` 
+    : `http://${proxy.split(':')[0]}:${proxy.split(':')[1]}`;
   return { agent: new HttpsProxyAgent(proxyUrl), address: proxy };
 };
 
@@ -243,7 +243,7 @@ const addShards = async (walletIndex = 0) => {
   }
 
   const walletObj = walletRefs[walletIndex];
-  const proxyInfo = getRandomProxy();
+  const proxyInfo = getOrderedProxy(walletIndex); // Use ordered proxy retrieval
   const proxyAgent = proxyInfo.agent;
   const proxyAddress = proxyInfo.address;
 
